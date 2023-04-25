@@ -1,4 +1,5 @@
 ﻿using Sandbox;
+using Sandbox.Internal;
 using System;
 
 namespace MyGame;
@@ -16,6 +17,16 @@ public class PawnAnimator : EntityComponent<Pawn>, ISingletonComponent
 		if ( Entity.Controller.HasEvent( "jump" ) )
 		{
 			helper.TriggerJump();
+		}
+
+		if( Entity.Controller.HasEvent( "crouch" ) )
+		{
+			helper.DuckLevel = 1f;
+		}
+
+		if ( Entity.Controller.HasEvent( "uncrouch" ) )
+		{
+			helper.DuckLevel = 0f;
 		}
 	}
 }

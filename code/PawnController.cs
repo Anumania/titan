@@ -1,6 +1,7 @@
 ﻿using Sandbox;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace MyGame;
 
@@ -10,6 +11,8 @@ public class PawnController : EntityComponent<Pawn>
 	public int GroundAngle => 45;
 	public int JumpSpeed => 300;
 	public float Gravity => 800f;
+
+	public bool Crouching = false;
 
 	HashSet<string> ControllerEvents = new( StringComparer.OrdinalIgnoreCase );
 
@@ -45,6 +48,37 @@ public class PawnController : EntityComponent<Pawn>
 		{
 			DoJump();
 		}
+
+		if ( Input.Down( InputButton.Duck) ) 
+		{
+			Crouching = true;
+			AddEvent( "crouch" );
+		}
+
+		if ( Input.Released( InputButton.Duck ) )
+		{
+			Crouching = false;
+			AddEvent( "uncrouch" );
+		}
+
+		if ( Crouching )
+		{
+			Vector3 maxs = Entity.CollisionBounds.Maxs;
+			Vector3 mins = Entity.CollisionBounds.Mins;
+			maxs.z = 32;
+			Entity.CollisionBounds = new BBox( mins, maxs );
+			Entity.EyeLocalPosition = new Vector3( 0, 0, 32 );
+		}
+		else
+		{
+			Vector3 maxs = Entity.CollisionBounds.Maxs;
+			Vector3 mins = Entity.CollisionBounds.Mins;
+			maxs.z = 64;
+			Entity.CollisionBounds = new BBox( mins, maxs );
+			Entity.EyeLocalPosition = new Vector3( 0, 0, 64 );
+
+		}
+
 
 		var mh = new MoveHelper( Entity.Position, Entity.Velocity );
 		mh.Trace = mh.Trace.Size( Entity.Hull ).Ignore( Entity );
